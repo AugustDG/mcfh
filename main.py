@@ -37,12 +37,12 @@ stock_data = read_stock_data()
 stock_data = stock_data.loc[stock_data.index.date < pd.Timestamp('2010-01-01').date()]
 
 # Create a vectorized environment with 4 parallel instances, rebalancing quarterly
-num_envs = 512
+num_envs = 2048
 envs = DummyVecEnv([make_env(stock_data, 'monthly') for _ in range(num_envs)])
 
 # Create and train the PPO agent
-model = PPO("MultiInputPolicy", envs, n_steps=12, batch_size=1024, gamma=0.99, clip_range=0.2,
-            learning_rate=lambda prg : cosine_lr(prg, 0.00004, 0.00002), ent_coef=0.0, n_epochs=5,
+model = PPO("MultiInputPolicy", envs, n_steps=12, batch_size=512, gamma=0.995, clip_range=0.2,
+            learning_rate=lambda prg : cosine_lr(prg, 0.000004, 0.000001), ent_coef=0.0, n_epochs=5,
             verbose=2, device='cuda', tensorboard_log="./ppo_stock_selection_tensorboard/")
 
 logging_cb = StockSelectionCallback()
